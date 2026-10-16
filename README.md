@@ -1,4 +1,6 @@
-# TrustBoundary Lab
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:19102A,50:7C3AED,100:0B1220&height=190&section=header&text=TrustBoundary%20Lab&fontSize=42&fontColor=F1F5F9&fontAlignY=38&animation=fadeIn&desc=Planned%20repeatable%20security%20evaluation%20for%20LLM%20application%20boundaries&descAlignY=61&descSize=15" alt="TrustBoundary Lab animated project banner" width="100%" />
+</p>
 
 **Evaluate AI application security with repeatable tests and inspectable evidence.**
 
@@ -107,3 +109,4 @@ This project is independently developed and maintained by Nurul Faiyaz. AI-assis
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
