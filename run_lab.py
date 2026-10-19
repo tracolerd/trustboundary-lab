@@ -5,9 +5,13 @@ from src.engine.runner import EvaluationRunner
 from src.engine.reporter import Reporter
 def main():
     print("Starting TrustBoundary Lab Evaluation...\n")
+    # Clear old evidence before running
+    evidence_dir = Path("evidence")
+    if evidence_dir.exists():
+        for f in evidence_dir.glob("*.json"):
+            f.unlink()
     provider = MockProvider()
     runner = EvaluationRunner(provider)
-    # স্কিমা ফোল্ডার বাদে শুধু scenarios ফোল্ডারের .json ফাইলগুলো লোড করবে
     scenarios = list(Path("scenarios").glob("*.json"))
     if not scenarios:
         print("No scenarios found in the 'scenarios' directory.")

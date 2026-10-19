@@ -12,6 +12,7 @@ class Scenario(BaseModel):
     input_payload: str
     expected_safe_behavior: str
     assertion: AssertionConfig
+    rag_document_id: Optional[str] = None
 class Evidence(BaseModel):
     scenario_id: str
     timestamp: str = Field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())

@@ -2,16 +2,23 @@
 import re
 from pathlib import Path
 from src.engine.models import Scenario, Evidence
+from src.engine.rag import MockDocumentStore
 class EvaluationRunner:
     def __init__(self, provider, evidence_dir="evidence"):
         self.provider = provider
         self.evidence_dir = Path(evidence_dir)
         self.evidence_dir.mkdir(parents=True, exist_ok=True)
+        self.document_store = MockDocumentStore()
     def run_scenario(self, scenario_path: str) -> dict:
         with open(scenario_path, "r", encoding="utf-8-sig") as f:
             data = json.load(f)
         scenario = Scenario(**data)
-        output = self.provider.generate_response(scenario.input_payload)
+        final_payload = scenario.input_payload
+        # Simulate RAG Document Retrieval
+        if scenario.rag_document_id:
+            retrieved_text = self.document_store.retrieve(scenario.rag_document_id)
+            final_payload = f"{final_payload}\n\n<retrieved_document>\n{retrieved_text}\n</retrieved_document>"
+        output = self.provider.generate_response(final_payload)
         # Expanded Assertion Logic
         passed = False
         a_type = scenario.assertion.type
