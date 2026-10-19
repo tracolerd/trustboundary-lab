@@ -1,11 +1,10 @@
 ﻿# TrustBoundary Lab - Project State
 ## Mission
 Evaluate the trust boundaries of an LLM application securely and deterministically using a local, defensive test lab.
-## Current Phase: Phase 8 (FastAPI Backend Integration)
-- [x] Phase 7 completed (Core MVP & CI).
-- [x] Implemented FastAPI server to expose runner and evidence.
-- [ ] Initialize React + TypeScript frontend.
-- [ ] Connect frontend dashboard to FastAPI endpoints.
+## Current Phase: FULLSTACK COMPLETION
+- [x] Phase 8 completed (FastAPI Backend Integration).
+- [x] Phase 9 completed (React + TypeScript Frontend Dashboard).
+- [x] Connected API to Frontend (Axios, CORS enabled).
 ## Architecture & Decisions
-- **Backend API:** Used FastAPI to wrap the existing Python evaluation engine. CORS is fully open `["*"]` strictly because this is a local defensive lab, allowing the upcoming React dev server to communicate without preflight issues.
-- **API Runner Execution:** The `/api/run` endpoint currently defaults to the `MockProvider` to ensure the web UI can trigger evaluations without accidental API costs.
+- **Frontend Dashboard:** Built with Vite + React + TypeScript. It runs on a separate port and connects to the FastAPI backend. It reads the evidence aggregation and displays a clean UI to trigger deterministic lab evaluations with a single click.
+- **Project Scope Met:** The architecture now successfully covers the entire prompt scope from threat modeling, to local deterministic engine, to CI validation, and a visualization dashboard.

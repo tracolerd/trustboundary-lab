@@ -1,0 +1,15 @@
+﻿.dashboard { max-width: 900px; margin: 0 auto; padding: 2rem; font-family: system-ui, sans-serif; }
+.header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 1rem; margin-bottom: 2rem; }
+.header h1 { margin: 0; color: #2c3e50; }
+.btn { background: #3b82f6; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s; }
+.btn:hover:not(:disabled) { background: #2563eb; }
+.btn:disabled { background: #94a3b8; cursor: not-allowed; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.card { background: #f8fafc; padding: 1.5rem; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center; }
+.card h3 { margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #64748b; text-transform: uppercase; }
+.card p { margin: 0; font-size: 2rem; font-weight: bold; color: #0f172a; }
+.pass { color: #16a34a !important; }
+.fail { color: #dc2626 !important; }
+.details-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+.details-table th, .details-table td { text-align: left; padding: 1rem; border-bottom: 1px solid #e2e8f0; }
+.details-table th { background: #f1f5f9; color: #475569; font-weight: 600; }
