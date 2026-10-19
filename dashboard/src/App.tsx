@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter, FaGithub, FaEnvelope, FaGlobe } from 'react-icons/fa';
 import './App.css';
 interface Summary {
   total_run: number;
@@ -11,6 +12,7 @@ interface Summary {
 function App() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const fetchSummary = async () => {
     try {
       const res = await axios.get('http://127.0.0.1:8000/api/reports/summary');
@@ -26,22 +28,43 @@ function App() {
   }, []);
   const runLab = async () => {
     setLoading(true);
+    setErrorMsg("");
     try {
       const res = await axios.post('http://127.0.0.1:8000/api/run');
       setSummary(res.data.summary);
     } catch (err) {
       console.error("Failed to run lab", err);
+      setErrorMsg("Error: Cannot connect to the local Python API. Ensure FastAPI backend is running on 127.0.0.1:8000.");
     }
     setLoading(false);
   };
   return (
     <div className="dashboard">
       <header className="header">
-        <h1>🛡️ TrustBoundary Lab</h1>
-        <button className="btn" onClick={runLab} disabled={loading}>
-          {loading ? "Running Evaluation..." : "▶ Run Evaluation"}
-        </button>
+        <div className="header-left">
+          <h1>🛡️ TrustBoundary Lab</h1>
+          <button className="btn" onClick={runLab} disabled={loading}>
+            {loading ? "Running Evaluation..." : "▶ Run Evaluation"}
+          </button>
+        </div>
+        <div className="profile-card">
+          <img src="/developer.jpg" alt="Nurul Faiyaz" className="profile-img" />
+          <div className="profile-info">
+            <h4>Nurul Faiyaz</h4>
+            <p>Software Developer</p>
+            <div className="social-links">
+              <a href="https://www.facebook.com/faiyaz.888" target="_blank" rel="noreferrer" title="Facebook"><FaFacebook /></a>
+              <a href="https://www.instagram.com/tracolerd" target="_blank" rel="noreferrer" title="Instagram"><FaInstagram /></a>
+              <a href="https://www.linkedin.com/in/faiyaz-xyz" target="_blank" rel="noreferrer" title="LinkedIn"><FaLinkedin /></a>
+              <a href="https://x.com/faiyaz_explores" target="_blank" rel="noreferrer" title="Twitter"><FaTwitter /></a>
+              <a href="https://github.com/tracolerd" target="_blank" rel="noreferrer" title="GitHub"><FaGithub /></a>
+              <a href="mailto:scrollfaiyaz@gmail.com" title="Email"><FaEnvelope /></a>
+              <a href="https://nurul-faiyaz.netlify.app/" target="_blank" rel="noreferrer" title="Website"><FaGlobe /></a>
+            </div>
+          </div>
+        </div>
       </header>
+      {errorMsg && <div className="error-banner">{errorMsg}</div>}
       {summary ? (
         <main>
           <div className="stats-grid">
@@ -71,7 +94,7 @@ function App() {
           </table>
         </main>
       ) : (
-        <p style={{marginTop: '2rem', color: '#666'}}>No evaluation data found. Click "Run Evaluation" to start.</p>
+        !errorMsg && <p style={{marginTop: '2rem', color: '#666'}}>No evaluation data found. Click "Run Evaluation" to start.</p>
       )}
     </div>
   );
