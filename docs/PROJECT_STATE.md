@@ -1,9 +1,10 @@
 ﻿# TrustBoundary Lab - Project State
 ## Mission
 Evaluate the trust boundaries of an LLM application securely and deterministically using a local, defensive test lab.
-## Current Phase: Phase 3 (Repeatable Reports & Summary)
-- [x] Phase 2 completed (Assertions, Evidence Schema & Scenario Tests).
-- [ ] Create a summary reporting script to aggregate evidence results.
-- [ ] Design a simple CLI or output format for the final report.
+## Current Phase: Phase 4 (Local RAG Sandbox)
+- [x] Phase 2 & Phase 3 completed (Assertions, Evidence Schema, Reporter, CLI Entry Point).
+- [ ] Create a local RAG setup separating trusted and untrusted sources.
+- [ ] Implement scenarios where document retrieval affects prompt execution.
 ## Architecture & Decisions
-- **Data-Driven Testing:** Added a dynamic pytest that automatically validates and runs all `scenarios/*.json` files. This ensures no malformed scenarios break the pipeline and future scenarios are tested automatically.
+- **CLI Entry Point:** Created `run_lab.py` as the primary execution script. It runs all scenarios and outputs a high-level console summary, ensuring local validation is simple and quick.
+- **Reporting:** `Reporter` class aggregates outcomes into `evidence/summary_report.json` to allow comparison between different configurations or future dashboards.
