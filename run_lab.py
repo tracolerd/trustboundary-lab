@@ -1,16 +1,32 @@
 ﻿import sys
+import argparse
 from pathlib import Path
+from dotenv import load_dotenv
 from src.providers.mock_provider import MockProvider
 from src.engine.runner import EvaluationRunner
 from src.engine.reporter import Reporter
 def main():
-    print("Starting TrustBoundary Lab Evaluation...\n")
-    # Clear old evidence before running
+    # Load environment variables from .env
+    load_dotenv()
+    parser = argparse.ArgumentParser(description="TrustBoundary Lab Runner")
+    parser.add_argument("--provider", type=str, choices=["mock", "gemini"], default="mock", help="Provider to use for evaluation")
+    args = parser.parse_args()
+    print(f"Starting TrustBoundary Lab Evaluation (Provider: {args.provider.upper()})...\n")
+    # Clear old evidence
     evidence_dir = Path("evidence")
     if evidence_dir.exists():
         for f in evidence_dir.glob("*.json"):
             f.unlink()
-    provider = MockProvider()
+    # Provider Selection
+    if args.provider == "gemini":
+        from src.providers.gemini_provider import GeminiProvider
+        try:
+            provider = GeminiProvider()
+        except ValueError as e:
+            print(f"Error: {e}\nPlease add your API key to the .env file.")
+            sys.exit(1)
+    else:
+        provider = MockProvider()
     runner = EvaluationRunner(provider)
     scenarios = list(Path("scenarios").glob("*.json"))
     if not scenarios:

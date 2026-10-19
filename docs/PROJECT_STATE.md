@@ -1,10 +1,11 @@
 ﻿# TrustBoundary Lab - Project State
 ## Mission
 Evaluate the trust boundaries of an LLM application securely and deterministically using a local, defensive test lab.
-## Current Phase: Phase 6 (Live Provider Adapter)
-- [x] Phase 4 completed (Local RAG Sandbox).
-- [x] Phase 5 completed (Unauthorized Tool Execution blocked at App Boundary).
-- [ ] Implement an optional adapter for a live provider (e.g., Gemini/OpenAI).
-- [ ] Ensure live provider uses `.env` secrets and respects cost/rate limits.
+## Current Phase: Phase 7 (CI Suite & Final Review)
+- [x] Phase 5 completed (Tool Authorization).
+- [x] Phase 6 completed (Live Gemini Provider Adapter integrated via opt-in CLI flag, respecting `.env` secrets).
+- [ ] Review final architecture.
+- [ ] Prepare for any future CI integration or dashboard rendering.
 ## Architecture & Decisions
-- **Tool Authorization:** Created `ToolRegistry` in the application layer. Even if the LLM attempts to call a sensitive tool, the execution is intercepted and blocked based on the deterministic `user_role` field, preventing privilege escalation.
+- **Live Provider:** Implemented `GeminiProvider` using the official `google-genai` SDK. It is opt-in (`python run_lab.py --provider gemini`) to keep the default execution cost-free and deterministic.
+- **Security:** `.env` is fully ignored by Git. Secrets are loaded dynamically via `python-dotenv`. Added `max_output_tokens` constraint to the provider call.
