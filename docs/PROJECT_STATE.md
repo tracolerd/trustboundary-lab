@@ -1,11 +1,13 @@
 ﻿# TrustBoundary Lab - Project State
 ## Mission
 Evaluate the trust boundaries of an LLM application securely and deterministically using a local, defensive test lab.
-## Current Phase: Phase 7 (CI Suite & Final Review)
-- [x] Phase 5 completed (Tool Authorization).
-- [x] Phase 6 completed (Live Gemini Provider Adapter integrated via opt-in CLI flag, respecting `.env` secrets).
-- [ ] Review final architecture.
-- [ ] Prepare for any future CI integration or dashboard rendering.
-## Architecture & Decisions
-- **Live Provider:** Implemented `GeminiProvider` using the official `google-genai` SDK. It is opt-in (`python run_lab.py --provider gemini`) to keep the default execution cost-free and deterministic.
-- **Security:** `.env` is fully ignored by Git. Secrets are loaded dynamically via `python-dotenv`. Added `max_output_tokens` constraint to the provider call.
+## Current Phase: MVP COMPLETED
+- [x] Phase 1: Mock Provider & Local Runner.
+- [x] Phase 2: Assertions, Evidence Schema & Unit Tests.
+- [x] Phase 3: CLI Entry Point & Summary Reporter.
+- [x] Phase 4: Local RAG Sandbox (Indirect Injection testing).
+- [x] Phase 5: Application Boundary Tool Authorization.
+- [x] Phase 6: Live Gemini Provider Adapter (Dotenv integration).
+- [x] Phase 7: GitHub Actions CI Suite & Final Architecture Review.
+## Status
+The Core MVP is fully operational. Future iterations can focus on connecting a web dashboard (React+TS) to read the `evidence/` outputs and integrating real ChromaDB if needed.
