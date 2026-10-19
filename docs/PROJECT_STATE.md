@@ -1,12 +1,9 @@
 ﻿# TrustBoundary Lab - Project State
 ## Mission
 Evaluate the trust boundaries of an LLM application securely and deterministically using a local, defensive test lab.
-## Current Phase: Phase 2 (Assertions, Evidence Schema & Unit Tests)
-- [x] Phase 0 & Phase 1 completed.
-- [x] Implement Evidence and TestRun output schemas.
-- [x] Expand Assertion logic (exact_match, regex_match, heuristic_safe).
-- [x] Store run evidence to disk for reporting.
-- [ ] Create tests for Indirect Injection & Canary Leakage scenarios.
+## Current Phase: Phase 3 (Repeatable Reports & Summary)
+- [x] Phase 2 completed (Assertions, Evidence Schema & Scenario Tests).
+- [ ] Create a summary reporting script to aggregate evidence results.
+- [ ] Design a simple CLI or output format for the final report.
 ## Architecture & Decisions
-- **Evidence Storage:** Run outcomes are saved locally as JSON files in an `evidence/` directory (ignored by git) to facilitate future dashboard generation.
-- **Assertions:** Transitioned from single assertion to flexible multiple assertion strategies (`regex` and `heuristic`) to capture varying LLM behaviors.
+- **Data-Driven Testing:** Added a dynamic pytest that automatically validates and runs all `scenarios/*.json` files. This ensures no malformed scenarios break the pipeline and future scenarios are tested automatically.
