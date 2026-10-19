@@ -13,6 +13,7 @@ class Scenario(BaseModel):
     expected_safe_behavior: str
     assertion: AssertionConfig
     rag_document_id: Optional[str] = None
+    user_role: str = "guest" # New field for tool auth
 class Evidence(BaseModel):
     scenario_id: str
     timestamp: str = Field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
