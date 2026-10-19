@@ -1,107 +1,298 @@
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:19102A,50:7C3AED,100:0B1220&height=190&section=header&text=TrustBoundary%20Lab&fontSize=42&fontColor=F1F5F9&fontAlignY=38&animation=fadeIn&desc=Planned%20repeatable%20security%20evaluation%20for%20LLM%20application%20boundaries&descAlignY=61&descSize=15" alt="TrustBoundary Lab animated project banner" width="100%" />
+  <img src="assets/trustboundary-banner.svg" alt="TrustBoundary Lab — LLM application security evaluation workbench" width="100%" />
 </p>
+
 <h1 align="center">TrustBoundary Lab</h1>
-<p align="center"><img src="https://img.shields.io/badge/Stage-Planning-8B5CF6" alt="Planning stage" /></p>
 
+<p align="center">
+  <a href="https://trust-boundary-lab.netlify.app/"><img src="https://img.shields.io/badge/Live%20Frontend-Open%20Preview-0F766E?style=for-the-badge&logo=netlify&logoColor=white" alt="Open the live frontend preview" /></a>
+  <a href="https://github.com/tracolerd/trustboundary-lab/actions/workflows/ci.yml"><img src="https://github.com/tracolerd/trustboundary-lab/actions/workflows/ci.yml/badge.svg?branch=main" alt="TrustBoundary Lab CI status" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-2563EB?style=for-the-badge" alt="MIT License" /></a>
+  <img src="https://img.shields.io/badge/Backend-Python%20%2B%20FastAPI-059669?style=for-the-badge&logo=fastapi&logoColor=white" alt="Python and FastAPI" />
+  <img src="https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript-2563EB?style=for-the-badge&logo=react&logoColor=white" alt="React and TypeScript" />
+  <img src="https://img.shields.io/badge/Stage-Functional%20Local%20MVP-8B5CF6?style=for-the-badge" alt="Functional local MVP" />
+</p>
 
-**Evaluate AI application security with repeatable tests and inspectable evidence.**
+<p align="center">
+  <strong>Evaluate the boundary. Inspect the evidence.</strong><br/>
+  A mock-first security evaluation workbench for testing trust boundaries in LLM-powered applications.
+</p>
 
-TrustBoundary Lab is a planned evaluation workbench for testing security boundaries in LLM-powered applications. It focuses on prompt injection, untrusted retrieved content, tool authorization, and accidental disclosure of synthetic sensitive data.
+<p align="center">
+  <a href="#overview">Overview</a> ·
+  <a href="#implemented-capabilities">Capabilities</a> ·
+  <a href="#evaluation-workflow">Workflow</a> ·
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#security-audit-and-known-limitations">Security audit</a> ·
+  <a href="#ci-and-verification">CI and tests</a>
+</p>
 
-> **Project status:** Initial planning and repository setup. The evaluation engine, sandbox, provider adapters, and dashboard are not implemented yet.
+---
 
-## Why this matters
+> [!IMPORTANT]
+> **Deployment status: the frontend preview is hosted; the evaluation API is still local.** The Netlify UI currently calls <code>http://127.0.0.1:8000</code>. In a visitor's browser, that address points to the visitor's own device—not to a server deployed with this site. Opening the public link lets you view the interface, but running an evaluation from that page requires the local FastAPI backend to be running too. This is not yet a fully hosted, click-and-run online lab. See [Quick start](#quick-start) to run the complete project locally.
 
-An LLM feature may process user instructions, retrieved documents, tool outputs, and application data in a single context. These inputs do not have equal trust. A useful security evaluation should test whether the surrounding application preserves permissions and data boundaries even when model output is unreliable.
+## Overview
 
-TrustBoundary Lab is designed to help developers run controlled, repeatable tests and compare results as prompts, retrieval logic, tools, or guardrails change.
+TrustBoundary Lab is a defensive test harness for exploring how an LLM-enabled application handles hostile prompts, untrusted retrieved content, sensitive canary values, and tool requests that cross authorization boundaries.
 
-## Scope of the first version
+The repository combines a Python evaluation runner, versioned JSON scenarios, deterministic assertions, a mock provider, an optional Gemini provider, a small FastAPI API, a React + TypeScript dashboard, JSON evidence reports, and a GitHub Actions workflow.
 
-- A versioned test-case format with setup, adversarial input, expected security property, and evaluation logic.
-- A deterministic mock model/provider so core workflows work without external API credentials.
-- Direct prompt-injection scenarios against a local demonstration application.
-- Indirect injection scenarios using explicitly untrusted sample documents.
-- Tool-boundary tests that verify application-side authorization.
-- Synthetic canary values for detecting accidental disclosure.
-- Run history with input version, output, observed evidence, and pass/fail/indeterminate state.
-- A report that explains the test result and notes important limitations.
+The goal is to make the *test inputs, boundary behavior, and recorded outcomes* inspectable. It is a learning and portfolio MVP—not a general-purpose LLM security scanner, a complete RAG security platform, or proof that an application is secure.
 
-## Proposed architecture
+## Live demo and deployment boundary
+
+<p align="center">
+  <a href="https://trust-boundary-lab.netlify.app/"><img src="https://img.shields.io/badge/OPEN%20LIVE%20FRONTEND-trust--boundary--lab.netlify.app-0F766E?style=for-the-badge&logo=netlify&logoColor=white" alt="Open TrustBoundary Lab live frontend" /></a>
+</p>
+
+The hosted page is the quickest way to inspect the dashboard's UI. The evaluation engine and API are not hosted alongside that page in the current setup.
+
+| What you want to do | Current status |
+|---|---|
+| Open and inspect the hosted dashboard | Available at the Netlify link above |
+| Run scenarios against the local mock provider | Supported with the local setup below |
+| View local run summaries in the dashboard | Supported when the UI and API are both running locally |
+| Click the Netlify page and execute a remote evaluation without setup | **Not supported yet** — the frontend targets the visitor's own loopback address |
+| Run a real Gemini-backed evaluation | Optional; requires a Gemini API key and may be subject to provider quotas or charges |
+
+To make the public page genuinely click-and-run, the next deployment step is to host the FastAPI service over HTTPS, configure the frontend's API base URL for that hosted service, and add appropriate authentication, request limits, and a restrictive CORS policy. Those deployment changes are not claimed to be complete in this repository.
+
+## Implemented capabilities
+
+| Component | What is implemented |
+|---|---|
+| Scenario catalogue | Five JSON security scenarios plus a JSON schema file |
+| Evaluation engine | Python runner loads a scenario, calls the configured provider, applies its configured assertion, and writes evidence |
+| Default provider | Deterministic mock provider for a repeatable, API-key-free baseline |
+| Optional model provider | Gemini adapter selected with <code>--provider gemini</code> and configured through <code>GEMINI_API_KEY</code> |
+| Direct-injection coverage | A scenario for adversarial instructions in the direct user input |
+| Indirect-injection / RAG simulation | A mock document store supplies a controlled untrusted document to the input |
+| Canary-leakage coverage | A synthetic canary scenario checks for a configured output condition |
+| Tool authorization | A small application-side registry checks the user role before simulating a tool execution |
+| Assertions | Exact-string exclusion, regex matching, and a basic refusal-keyword heuristic |
+| Evidence | Per-scenario JSON records and an aggregate summary in the local <code>evidence/</code> directory |
+| API | FastAPI endpoints to list scenarios, run the mock-backed suite, and read the summary |
+| Dashboard | React, TypeScript, Vite, Axios, and a table of scenario outcomes |
+| Automation | GitHub Actions installs Python requirements, runs pytest, and executes the mock-provider CLI |
+
+### Included scenario set
+
+| Scenario file | Security theme | What it is intended to exercise |
+|---|---|---|
+| <code>001_basic_direct_injection.json</code> | Direct prompt injection | Handling adversarial instructions in the direct input |
+| <code>002_indirect_injection.json</code> | Indirect prompt injection | Treating retrieved content as untrusted input |
+| <code>003_canary_leakage.json</code> | Synthetic data disclosure | Checking whether a designated canary value appears in output |
+| <code>004_rag_poisoning.json</code> | Retrieval poisoning simulation | Observing behavior when a mock retrieved document contains hostile instructions |
+| <code>005_unauthorized_tool.json</code> | Tool authorization | Checking the application-side role gate around a simulated tool call |
+
+These files are controlled fixtures, not a comprehensive attack corpus. The RAG path uses an in-memory mock document store; it is not a live vector database or a production retrieval pipeline.
+
+## Evaluation workflow
 
 ~~~mermaid
 flowchart TD
-    A[Versioned Test Cases] --> B[Evaluation Runner]
-    B --> C[Mock or Configured Provider]
-    C --> D[Isolated Demo Application]
-    D --> E[Observed Behavior]
-    E --> F[Deterministic Assertions]
-    F --> G[Evidence and Evaluation Report]
-    G --> H[Regression Comparison]
+    A[Versioned JSON scenario] --> B[Pydantic scenario model]
+    B --> C[Mock provider or configured Gemini provider]
+    C --> D{Tool call requested?}
+    D -- Yes --> E[Application-side role check]
+    D -- No --> F[Observed provider output]
+    E --> G[Configured deterministic assertion]
+    F --> G
+    G --> H[Per-scenario evidence JSON]
+    H --> I[Summary reporter]
+    I --> J[FastAPI response / local dashboard]
 ~~~
 
-The evaluation runner should be independent of the user interface. Provider adapters should implement a small explicit interface and should not bypass the application's own authorization checks.
+Each scenario contains an ID, version, threat category, input payload, expected behavior description, and assertion configuration. The runner records the provider name, observed output, timestamp, assertion type, and pass/fail result.
 
-## Proposed technology
+**Interpret results carefully:** a pass means the configured assertion evaluated to true. It does not mean the overall application is secure. The <code>expected_safe_behavior</code> field describes the intended outcome; the runner does not use a natural-language understanding system to verify that description automatically. The refusal heuristic is keyword-based and can produce false positives.
 
-| Area | Planned choice |
+## Technology
+
+| Area | Technology |
 |---|---|
-| Core engine | Python |
-| API | FastAPI |
-| Dashboard | React and TypeScript |
-| Initial provider | Deterministic mock provider |
-| Optional retrieval | ChromaDB for a local RAG demonstration |
-| Optional model providers | Gemini, OpenAI, or Anthropic adapters |
-| Optional orchestration | Direct implementations first; LangChain or LlamaIndex only when useful |
-| Test data | Versioned synthetic and controlled security scenarios |
+| Language and data models | Python, Pydantic |
+| HTTP API | FastAPI, Uvicorn |
+| Frontend | React, TypeScript, Vite |
+| HTTP client and icons | Axios, React Icons |
+| Default evaluation provider | Local deterministic mock |
+| Optional model provider | Google Gen AI SDK / Gemini |
+| Scenario and evidence format | JSON |
+| Tests | pytest |
+| CI | GitHub Actions |
+| Local persistence | JSON evidence files; no database |
 
-Live model calls may cost money, depend on rate limits, or change behavior between model versions. External providers are optional and must be configured explicitly. A subscription to a consumer AI product should not be assumed to include API access or quota.
+## Quick start
 
-## Evaluation model
+### Prerequisites
 
-Each scenario should record:
+- Python 3.11 is the version configured in CI.
+- Git.
+- Node.js and npm if you want to run the dashboard.
+- A Gemini API key only if you intend to run the optional Gemini provider.
 
-- A unique scenario ID and version.
-- Threat category and the security property being tested.
-- Controlled application setup and test input.
-- Expected safe behavior and the assertion method.
-- Observed response and relevant evidence.
-- Result: passed, failed, or indeterminate.
-- Provider/model/configuration metadata where applicable.
-- Known limitations and reproduction instructions.
+### 1. Clone the repository and install Python dependencies
 
-A single numerical security score cannot prove that an application is secure. Reports should include test coverage, false-positive risks, and the limits of the test corpus.
+Run these commands from PowerShell:
 
-## Development roadmap
+~~~powershell
+git clone https://github.com/tracolerd/trustboundary-lab.git
+cd trustboundary-lab
 
-1. Define the scenario schema and security threat model.
-2. Implement a deterministic mock provider and a small local demo app.
-3. Add the evaluation runner and repeatable unit tests.
-4. Persist run evidence and expose a simple API.
-5. Add a local RAG demonstration with explicitly untrusted documents.
-6. Build the dashboard and historical regression comparison.
-7. Add optional provider adapters with explicit configuration.
-8. Add CI workflows that run a stable, cost-free subset of tests.
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
 
-## Testing strategy
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+~~~
 
-- Known-safe and known-unsafe synthetic scenarios.
-- Negative tests for unauthorized tool calls.
-- Tests verifying that retrieved content cannot grant permissions by itself.
-- Synthetic canary disclosure tests.
-- Regression tests for changes in guardrails and application behavior.
-- Tests for malformed cases and incomplete evaluation evidence.
-- Provider adapter contract tests and mock responses.
-- Explicit tests for indeterminate outcomes where the evidence is insufficient.
+### 2. Run the tests
 
-## Security and ethical boundaries
+~~~powershell
+python -m pytest tests/ -v
+~~~
 
-This project is for testing systems you own or have explicit permission to assess. The initial release should run against an isolated local demonstration application, not public third-party services. Test data must not contain real credentials or personal information. Any live-provider integration should use environment-based secrets, explicit budget/rate limits, and safe logging.
+The test suite covers runner behavior, assertion behavior, and execution of the five committed scenario fixtures. These are project tests for the implemented harness; they are not a third-party security certification or a benchmark of model robustness.
 
-## Current status
+### 3. Run the local evaluation
 
-This repository contains the initial project brief and MIT license. No security result, provider integration, RAG protection, or guardrail effectiveness has been established yet.
+~~~powershell
+python run_lab.py --provider mock
+~~~
+
+The mock provider runs without an external API key. The CLI prints an aggregate summary and writes per-scenario evidence plus <code>evidence/summary_report.json</code>.
+
+> [!WARNING]
+> Each CLI run currently deletes existing JSON files directly inside <code>evidence/</code> before starting. The API's run endpoint also clears its existing JSON evidence. Copy any reports you need to keep before starting another run.
+
+### 4. Optional: run with Gemini
+
+Create a local environment file from the example:
+
+~~~powershell
+Copy-Item .env.example .env
+~~~
+
+Add your key to <code>.env</code>:
+
+~~~dotenv
+GEMINI_API_KEY=your_api_key_here
+~~~
+
+Then run:
+
+~~~powershell
+python run_lab.py --provider gemini
+~~~
+
+Keep <code>.env</code> private and never commit API keys. The Gemini-backed run uses a real external provider, so results may vary and provider quotas or billing can apply. The CI workflow deliberately uses the mock provider rather than a live model.
+
+### 5. Start the FastAPI backend
+
+From the repository root, open a terminal and run:
+
+~~~powershell
+python -m uvicorn src.api.server:app --host 127.0.0.1 --port 8000
+~~~
+
+The API is available locally at <code>http://127.0.0.1:8000</code>; FastAPI's interactive API documentation is at <code>http://127.0.0.1:8000/docs</code>.
+
+| Endpoint | Purpose |
+|---|---|
+| <code>GET /api/scenarios</code> | Return the scenario definitions |
+| <code>POST /api/run</code> | Clear the current JSON evidence, run all scenario files with the mock provider, and return results plus a summary |
+| <code>GET /api/reports/summary</code> | Read the saved summary report when one exists |
+
+The API uses local files and directories relative to the current working directory, so start it from the repository root.
+
+### 6. Start the React dashboard
+
+Keep the backend terminal running. Open a second terminal:
+
+~~~powershell
+cd dashboard
+npm ci
+npm run dev
+~~~
+
+Open the local Vite URL printed in the terminal. The current frontend is hard-coded to call <code>http://127.0.0.1:8000</code>, so the local backend must be running on that address. You can also run <code>npm run build</code> to build the frontend locally; the current GitHub Actions workflow does not run that frontend build.
+
+## Security audit and known limitations
+
+This section documents material limits visible in the current source. The application should be treated as a local development lab until these boundaries are addressed.
+
+### Critical deployment and API boundaries
+
+- **The public frontend is not connected to a hosted API.** The React app hard-codes a loopback API address. A visitor opening the Netlify page cannot use it to reach the developer's machine or a remote backend.
+- **No API authentication or authorization is implemented.** The FastAPI routes are not protected by user identity or access controls.
+- **CORS is permissive.** The current API allows all origins, methods, and headers. Keep the API bound to <code>127.0.0.1</code> for local use; do not expose it to a public network as-is.
+- **The API can overwrite local evidence.** Calling <code>POST /api/run</code> clears JSON files under the relative <code>evidence/</code> directory before generating a new run.
+
+### Evaluation and reliability limitations
+
+- **The mock provider is not an LLM.** It returns simple, deterministic responses. Passing mock scenarios validates only the fixture/runner behavior under those conditions, not the resilience of Gemini or another real model.
+- **The RAG implementation is simulated.** Retrieved content comes from a small in-memory document dictionary, not a live embedding model, vector store, or retrieval service.
+- **Assertions are intentionally limited.** Exact-string exclusion and regex checks are deterministic, while <code>heuristic_safe</code> checks a short list of refusal-related phrases. That heuristic may incorrectly pass unsafe output or reject safe output.
+- **Expected behavior is descriptive, not independently verified.** The runner applies the scenario's configured assertion; it does not prove that the result satisfies the complete natural-language security expectation.
+- **Provider failures do not have a dedicated result state.** The Gemini adapter currently converts caught exceptions into a text response. A report can therefore treat an error string as output rather than preserving a distinct provider-error or indeterminate status.
+- **No database or historical run store exists.** Results are written to local JSON files, and the standard run path replaces prior evidence rather than maintaining a durable history.
+- **Verification scope is limited.** CI runs Python tests and a mock-provider CLI evaluation. It does not currently build/test the frontend, call the live Gemini API, verify the Netlify-to-API deployment, or provide broad adversarial-model coverage.
+
+### Safe use
+
+Use this project to study or test systems you own or are explicitly authorized to assess. Keep test values synthetic, avoid real secrets and personal data in prompts or evidence, protect any API key, and do not interpret a green scenario summary as proof of production security.
+
+## CI and verification
+
+The workflow at <code>.github/workflows/ci.yml</code> runs on pushes and pull requests targeting <code>main</code>. It installs the Python requirements, executes <code>python -m pytest tests/ -v</code>, and runs <code>python run_lab.py --provider mock</code>.
+
+The workflow badge near the top links to the live GitHub Actions status. Its scope is the Python evaluation pipeline; it does **not** currently verify the dashboard's production build or the hosted deployment's browser-to-API behavior.
+
+## Roadmap
+
+- [ ] Move the API base URL into deployment configuration rather than hard-coding loopback.
+- [ ] Deploy the API over HTTPS and connect the hosted frontend to it.
+- [ ] Add authentication, request throttling, strict CORS, and deployment-safe configuration before hosting the API publicly.
+- [ ] Preserve prior runs and evidence with explicit retention/export controls.
+- [ ] Record provider errors and insufficient evidence as distinct statuses.
+- [ ] Strengthen scenario assertions and expand positive, negative, and regression cases.
+- [ ] Add frontend build/lint checks to CI.
+- [ ] Expand beyond mock retrieval into an isolated, clearly scoped RAG test environment.
+
+## Repository layout
+
+~~~text
+.
+├── assets/
+│   └── trustboundary-banner.svg
+├── dashboard/
+│   ├── public/
+│   └── src/
+│       ├── App.tsx
+│       ├── App.css
+│       └── index.css
+├── docs/
+│   ├── DECISIONS.md
+│   └── PROJECT_STATE.md
+├── scenarios/
+│   ├── 001_basic_direct_injection.json
+│   ├── 002_indirect_injection.json
+│   ├── 003_canary_leakage.json
+│   ├── 004_rag_poisoning.json
+│   ├── 005_unauthorized_tool.json
+│   └── schema/
+├── src/
+│   ├── api/
+│   ├── engine/
+│   └── providers/
+├── tests/
+├── .github/workflows/ci.yml
+├── requirements.txt
+├── run_lab.py
+└── LICENSE
+~~~
+
 ---
 
 ## Creator, Developer & Maintainer
