@@ -2,17 +2,25 @@
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import json
+import os
 from src.engine.runner import EvaluationRunner
 from src.engine.reporter import Reporter
 from src.providers.mock_provider import MockProvider
 app = FastAPI(title="TrustBoundary Lab API", version="1.0")
-# Enable CORS for local React Frontend
+# CORS restricts browser origins; it does not provide authentication. Keep
+# credentials disabled and configure exact frontend origins for each environment.
+_default_origins = "http://localhost:5173,http://127.0.0.1:5173"
+_allowed_origins = [
+    origin.strip()
+    for origin in os.getenv("TRUSTBOUNDARY_CORS_ORIGINS", _default_origins).split(",")
+    if origin.strip()
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Local dev environment only
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_allowed_origins,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 @app.get("/api/scenarios")
 def get_scenarios():

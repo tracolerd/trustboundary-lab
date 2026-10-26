@@ -30,7 +30,7 @@
 ---
 
 > [!IMPORTANT]
-> **Deployment status: the frontend preview is hosted; the evaluation API is still local.** The Netlify UI currently calls <code>http://127.0.0.1:8000</code>. In a visitor's browser, that address points to the visitor's own device—not to a server deployed with this site. Opening the public link lets you view the interface, but running an evaluation from that page requires the local FastAPI backend to be running too. This is not yet a fully hosted, click-and-run online lab. See [Quick start](#quick-start) to run the complete project locally.
+> **Deployment status: the frontend preview is hosted; the evaluation API is still local.** The dashboard reads its API origin from <code>VITE_API_BASE_URL</code>. In production builds this must be configured explicitly; a visitor's browser cannot reach the developer's <code>127.0.0.1</code>. Opening the public link lets you view the interface, but running an evaluation from that page requires the local FastAPI backend to be running too. This is not yet a fully hosted, click-and-run online lab. See [Quick start](#quick-start) to run the complete project locally.
 
 ## Overview
 
@@ -53,7 +53,7 @@ The hosted page is the quickest way to inspect the dashboard's UI. The evaluatio
 | Open and inspect the hosted dashboard | Available at the Netlify link above |
 | Run scenarios against the local mock provider | Supported with the local setup below |
 | View local run summaries in the dashboard | Supported when the UI and API are both running locally |
-| Click the Netlify page and execute a remote evaluation without setup | **Not supported yet** — the frontend targets the visitor's own loopback address |
+| Click the Netlify page and execute a remote evaluation without setup | **Not supported yet** — the frontend requires a configured API origin; the API itself is not hosted with the static page |
 | Run a real Gemini-backed evaluation | Optional; requires a Gemini API key and may be subject to provider quotas or charges |
 
 To make the public page genuinely click-and-run, the next deployment step is to host the FastAPI service over HTTPS, configure the frontend's API base URL for that hosted service, and add appropriate authentication, request limits, and a restrictive CORS policy. Those deployment changes are not claimed to be complete in this repository.
@@ -324,3 +324,7 @@ This project is independently built and maintained by Nurul Faiyaz. The project'
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+### API origin and CORS configuration
+
+For local dashboard development, copy `dashboard/.env.example` to `dashboard/.env.local`. Configure `VITE_API_BASE_URL` at build time for a hosted frontend. Configure `TRUSTBOUNDARY_CORS_ORIGINS` on the API service as a comma-separated list of exact trusted frontend origins. Wildcard origins and credentialed CORS are intentionally disabled. CORS is not authentication; the API still needs appropriate authentication and request authorization before handling untrusted traffic.

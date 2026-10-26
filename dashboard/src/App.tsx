@@ -1,5 +1,11 @@
 ﻿import { useEffect, useState } from 'react';
 import axios from 'axios';
+
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+if (import.meta.env.PROD && !configuredApiBaseUrl) {
+  throw new Error('VITE_API_BASE_URL must be configured for production builds. See dashboard/.env.example.');
+}
+const api = axios.create({ baseURL: (configuredApiBaseUrl || 'http://127.0.0.1:8000').replace(/\/+$/, '') });
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter, FaGithub, FaEnvelope, FaGlobe } from 'react-icons/fa';
 import './App.css';
 interface Summary {
@@ -15,7 +21,7 @@ function App() {
   const [errorMsg, setErrorMsg] = useState("");
   const fetchSummary = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8000/api/reports/summary');
+      const res = await api.get('/api/reports/summary');
       if (!res.data.error) {
         setSummary(res.data);
       }
@@ -30,7 +36,7 @@ function App() {
     setLoading(true);
     setErrorMsg("");
     try {
-      const res = await axios.post('http://127.0.0.1:8000/api/run');
+      const res = await api.post('/api/run');
       setSummary(res.data.summary);
     } catch (err) {
       console.error("Failed to run lab", err);
