@@ -5,6 +5,7 @@ import json
 import os
 from src.engine.runner import EvaluationRunner
 from src.engine.reporter import Reporter
+from src.engine.evidence_archive import archive_existing_evidence
 from src.providers.mock_provider import MockProvider
 app = FastAPI(title="TrustBoundary Lab API", version="1.0")
 # CORS restricts browser origins; it does not provide authentication. Keep
@@ -31,11 +32,9 @@ def get_scenarios():
     return {"scenarios": scenarios}
 @app.post("/api/run")
 def run_all_scenarios():
-    # Clear old evidence
+    # Preserve prior results before writing new evidence.
     evidence_dir = Path("evidence")
-    if evidence_dir.exists():
-        for f in evidence_dir.glob("*.json"):
-            f.unlink()
+    archive_existing_evidence(evidence_dir)
     # We use MockProvider by default to ensure safe, cost-free UI testing
     provider = MockProvider()
     runner = EvaluationRunner(provider)
