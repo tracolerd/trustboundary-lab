@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from src.providers.mock_provider import MockProvider
 from src.engine.runner import EvaluationRunner
 from src.engine.reporter import Reporter
+from src.engine.evidence_archive import archive_existing_evidence
 def main():
     # Load environment variables from .env
     load_dotenv()
@@ -12,11 +13,11 @@ def main():
     parser.add_argument("--provider", type=str, choices=["mock", "gemini"], default="mock", help="Provider to use for evaluation")
     args = parser.parse_args()
     print(f"Starting TrustBoundary Lab Evaluation (Provider: {args.provider.upper()})...\n")
-    # Clear old evidence
+    # Preserve prior results before writing new evidence.
     evidence_dir = Path("evidence")
-    if evidence_dir.exists():
-        for f in evidence_dir.glob("*.json"):
-            f.unlink()
+    archived = archive_existing_evidence(evidence_dir)
+    if archived:
+        print(f"Archived previous evidence to {archived}")
     # Provider Selection
     if args.provider == "gemini":
         from src.providers.gemini_provider import GeminiProvider
