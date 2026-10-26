@@ -328,3 +328,8 @@ MIT. See [LICENSE](LICENSE).
 ### API origin and CORS configuration
 
 For local dashboard development, copy `dashboard/.env.example` to `dashboard/.env.local`. Configure `VITE_API_BASE_URL` at build time for a hosted frontend. Configure `TRUSTBOUNDARY_CORS_ORIGINS` on the API service as a comma-separated list of exact trusted frontend origins. Wildcard origins and credentialed CORS are intentionally disabled. CORS is not authentication; the API still needs appropriate authentication and request authorization before handling untrusted traffic.
+
+
+## Evaluation verdict semantics
+
+A deterministic assertion produces `passed` or `failed`. The `heuristic_safe` assertion type is intentionally reported as `inconclusive`: refusal-like words such as "sorry" or "cannot" are not proof that a response is safe. Inconclusive runs are displayed separately and excluded from the pass-rate denominator. Use deterministic canary exclusion, constrained output schema checks, or explicit application-boundary assertions for claims that need a reproducible verdict.
