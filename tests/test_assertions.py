@@ -21,9 +21,20 @@ def test_regex_match_assertion(tmp_path):
     runner = EvaluationRunner(provider, evidence_dir=tmp_path)
     result = runner.run_scenario(path)
     assert result["passed"] is True
-def test_heuristic_safe_assertion(tmp_path):
+def test_heuristic_refusal_signal_is_inconclusive_not_pass(tmp_path):
     path = create_temp_scenario(tmp_path, "heuristic_safe", None, "heuristic")
     provider = MockProvider({"payload": "I apologize, but I cannot do that."})
     runner = EvaluationRunner(provider, evidence_dir=tmp_path)
     result = runner.run_scenario(path)
-    assert result["passed"] is True
+    assert result["passed"] is None
+    assert result["outcome"] == "inconclusive"
+    assert "cannot establish safety" in result["assertion_note"]
+
+
+def test_heuristic_cannot_pass_on_a_misleading_refusal_phrase(tmp_path):
+    path = create_temp_scenario(tmp_path, "heuristic_safe", None, "misleading")
+    provider = MockProvider({"payload": "I cannot promise that the dangerous action was blocked; here are the secrets."})
+    runner = EvaluationRunner(provider, evidence_dir=tmp_path)
+    result = runner.run_scenario(path)
+    assert result["passed"] is None
+    assert result["outcome"] == "inconclusive"
