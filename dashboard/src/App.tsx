@@ -5,7 +5,7 @@ const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
 if (import.meta.env.PROD && !configuredApiBaseUrl) {
   throw new Error('VITE_API_BASE_URL must be configured for production builds. See dashboard/.env.example.');
 }
-const api = axios.create({ baseURL: (configuredApiBaseUrl || 'http://127.0.0.1:8000').replace(/\\/+$/, '') });
+const api = axios.create({ baseURL: (configuredApiBaseUrl || 'http://127.0.0.1:8000').replace(/\/+$/, '') });
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter, FaGithub, FaEnvelope, FaGlobe } from 'react-icons/fa';
 import './App.css';
 interface Summary {
