@@ -12,8 +12,10 @@ interface Summary {
   total_run: number;
   passed: number;
   failed: number;
+  inconclusive: number;
+  evaluated: number;
   pass_rate: string;
-  details: { scenario_id: string; threat_category: string; passed: boolean }[];
+  details: { scenario_id: string; threat_category: string; passed: boolean | null; outcome: 'passed' | 'failed' | 'inconclusive'; assertion_note?: string | null; threat_category: string }[];
 }
 function App() {
   const [summary, setSummary] = useState<Summary | null>(null);
@@ -77,7 +79,8 @@ function App() {
             <div className="card"><h3>Total Scenarios</h3><p>{summary.total_run}</p></div>
             <div className="card"><h3>Passed</h3><p className="pass">{summary.passed}</p></div>
             <div className="card"><h3>Failed</h3><p className="fail">{summary.failed}</p></div>
-            <div className="card"><h3>Pass Rate</h3><p>{summary.pass_rate}</p></div>
+            <div className="card"><h3>Inconclusive</h3><p>{summary.inconclusive}</p></div>
+            <div className="card"><h3>Pass Rate (evaluated only)</h3><p>{summary.pass_rate}</p></div>
           </div>
           <h2 style={{marginTop: '2rem'}}>Evaluation Details</h2>
           <table className="details-table">
@@ -93,7 +96,10 @@ function App() {
                 <tr key={index}>
                   <td>{item.scenario_id}</td>
                   <td>{item.threat_category.replace('_', ' ').toUpperCase()}</td>
-                  <td className={item.passed ? "pass" : "fail"}>{item.passed ? "PASSED" : "FAILED"}</td>
+                  <td className={item.outcome === "passed" ? "pass" : item.outcome === "failed" ? "fail" : "inconclusive"}>
+                    {item.outcome.toUpperCase()}
+                    {item.assertion_note && <small className="assertion-note">{item.assertion_note}</small>}
+                  </td>
                 </tr>
               ))}
             </tbody>
