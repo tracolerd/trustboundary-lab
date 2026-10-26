@@ -15,7 +15,7 @@ interface Summary {
   inconclusive: number;
   evaluated: number;
   pass_rate: string;
-  details: { scenario_id: string; threat_category: string; passed: boolean | null; outcome: 'passed' | 'failed' | 'inconclusive'; assertion_note?: string | null; threat_category: string }[];
+  details: { scenario_id: string; threat_category: string; passed: boolean | null; outcome: 'passed' | 'failed' | 'inconclusive'; assertion_note?: string | null }[];
 }
 function App() {
   const [summary, setSummary] = useState<Summary | null>(null);
