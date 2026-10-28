@@ -333,3 +333,7 @@ For local dashboard development, copy `dashboard/.env.example` to `dashboard/.en
 ## Evaluation verdict semantics
 
 A deterministic assertion produces `passed` or `failed`. The `heuristic_safe` assertion type is intentionally reported as `inconclusive`: refusal-like words such as "sorry" or "cannot" are not proof that a response is safe. Inconclusive runs are displayed separately and excluded from the pass-rate denominator. Use deterministic canary exclusion, constrained output schema checks, or explicit application-boundary assertions for claims that need a reproducible verdict.
+
+---
+
+<p align="center"><sub>Portfolio catalog · Project 06 of 22 · <a href="https://github.com/tracolerd">Nurul Faiyaz</a></sub></p>
